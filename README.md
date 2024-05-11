@@ -57,6 +57,39 @@ _`*.controller.ts` 类似vue路由_
 
 _`*.service.ts` 数据处理逻辑_
 
+### 中间件
+
+_`*.middleware.ts`类似express中间件_
+
+- 必须使用模块类的 `configure()` 方法设置
+- 包含中间件的模块必须实现 `NestModule` 接口
+
+#### `apply()`
+
+_指定注册的中间件_
+
+- 可传入一个或多个参数(中间件)
+
+#### `exclude()`
+
+_指定中间件需排除的路由_
+
+#### `forRoutes()`
+
+_指定中间件应用的路由处理程序_
+
+- 可接受一个字符串、多个字符串、对象、一个控制器类甚至多个控制器类
+- 常用：
+  - `forRoutes('cats')`
+    - 为`/cats`路由处理程序全局注册中间件
+  - `forRoutes({ path: 'cats', method: RequestMethod.GET })`
+    - 为`/cats`路由处理程序的GET请求方法注册中间件
+    - `path`支持模式匹配
+
+#### 全局中间件
+
+_在main.ts中，`app.use(<middleware-name>)`_
+
 ### 模块
 
 _`*.module.ts` 每一个模块都是一个共享模块_
