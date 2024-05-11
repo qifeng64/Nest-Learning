@@ -8,26 +8,28 @@ import {
   Post,
   Query,
   Redirect,
-  Req,
 } from '@nestjs/common';
-import { CreateCatDto } from './create-cat.dto';
+import { CreateCatDto } from './dto/create-cat.dto';
+import { CatsService } from './cats.service';
+import { Cat } from 'src/cats/interfaces/cat.interface';
 
 @Controller('cats')
 export class CatsController {
+  constructor(private catsService: CatsService) {}
+
   @Post()
   // 1.状态码：post 默认201；其余请求类型默认200。此处更改默认状态码
   @HttpCode(204)
   // 2.自定义响应头
   @Header('Cache-Control', 'none')
-  create(@Body() createCatDto: CreateCatDto): string {
+  create(@Body() createCatDto: CreateCatDto) {
     console.log(createCatDto);
-    return 'This action add a new cat';
+    this.catsService.create(createCatDto);
   }
 
   @Get()
-  findAll(@Req() request: Request): string {
-    console.log('request', request);
-    return 'This action returns all cats';
+  async findAll(): Promise<Cat[]> {
+    return this.catsService.findAll();
   }
 
   // 3.路由模式匹配，如 * 表示任意字符
