@@ -110,6 +110,42 @@ _`@UseFilters(new exceptionFilterClass())` 绑定过滤器_
     - 方案一：在main.ts中，`app.useGlobalFilters(new exceptionFilterClass())`
     - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
 
+### Pipes
+
+_管道，作用：转换和验证_
+
+#### 内置管道(类)
+
+_可直接传入类，也可传入实例，使用实例可自定义相应状态码等_
+
+- ValidationPipe
+  - 推荐在定义DTO时结合`class-validator`使用
+  - `pnpm add class-validator`
+- ParseIntPipe
+- ParseFloatPipe
+- ParseBoolPipe
+- ParseArrayPipe
+- ParseUUIDPipe
+- ParseEnumPipe
+- ParseFilePipe
+- DefaultValuePipe
+  - `new DefaultValuePipe(defaultVal)`，提供默认值
+
+#### 自定义管道
+
+_每个管道必须实现`transform()`方法_
+_内置验证管道十分强大，直接使用即可；需对传入数据进行处理时可自定义管道_
+
+- 使用`@UsePipes`装饰器绑定管道
+- 对象解构验证器
+  - `pnpm add joi`
+  - `pnpm add -D @types/joi`
+- 类验证器
+  - `pnpm add class-validator class-transformer`
+- 全局管道
+  - 方案一：在main.ts中，``app.useGlobalPipes(new <custom-pipe>())`
+  - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
+
 ### 模块
 
 _`*.module.ts` 每一个模块都是一个共享模块_
@@ -131,10 +167,16 @@ _`*.module.ts` 每一个模块都是一个共享模块_
   - 注册本模块全局的提供者
     - 注册后相当于已在该模块内全局实例化
   - 注册过滤器
-  - `{ provide: APP_FILTER, useClass: exceptionFilterClass}`
+    - `{ provide: APP_FILTER, useClass: exceptionFilterClass }`
+  - 注册管道
+    - `{ provide: APP_PIPE, useClass: <custom-pipe> }`
 - exports
   - 注册并导出本模块内部注册的提供者
   - 注册并导出本模块导入的其它模块
 - imports
   - 导入其它模块
   - 可直接使用全局模块导出的提供者，不需要imports该全局模块
+
+#### @UsePipes
+
+_绑定管道_

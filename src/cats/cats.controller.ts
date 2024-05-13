@@ -4,16 +4,21 @@ import {
   Get,
   Header,
   HttpCode,
+  HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   Redirect,
   UseFilters,
+  ValidationPipe,
+  // UsePipes,
 } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
-import { ForbiddenException } from '../forbidden.exception';
+// import { ForbiddenException } from '../forbidden.exception';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
+// import { JoiValidationPipe } from './cats.pipe';
 // import { Cat } from 'src/cats/interfaces/cat.interface';
 
 @Controller('cats')
@@ -25,7 +30,8 @@ export class CatsController {
   @HttpCode(204)
   // 2.自定义响应头
   @Header('Cache-Control', 'none')
-  create(@Body() createCatDto: CreateCatDto) {
+  // @UsePipes(new JoiValidationPipe())
+  async create(@Body(new ValidationPipe()) createCatDto: CreateCatDto) {
     console.log(createCatDto);
     this.catsService.create(createCatDto);
   }
@@ -34,7 +40,8 @@ export class CatsController {
   @UseFilters(new HttpExceptionFilter()) // 使用异常过滤器
   async findAll() {
     // throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-    throw new ForbiddenException();
+    // throw new ForbiddenException();
+    return this.catsService.findAll();
   }
 
   // 3.路由模式匹配，如 * 表示任意字符
@@ -56,11 +63,24 @@ export class CatsController {
   }
 
   // 6.params(路由参数): /id
-  @Get(':id')
-  // findOne(@Param() params: { id: number }): string {
-  // 显示将参数标记传递给装饰器
-  findOne(@Param('id') id: number): string {
-    console.log(id);
-    return `This action returns a #${id} cat`;
+  // @Get(':id')
+  // // findOne(@Param() params: { id: number }): string {
+  // // 显示将参数标记传递给装饰器
+  // findOne(@Param('id') id: number): string {
+  //   console.log(id);
+  //   return `This action returns a #${id} cat`;
+  // }
+
+  // Pipes，管道
+  // 内置管道：ParseIntPipe
+  @Get(':age')
+  findOneByAge(
+    @Param(
+      'age',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
+    age: number,
+  ) {
+    return this.catsService.findOne(age);
   }
 }
