@@ -90,6 +90,17 @@ _指定中间件应用的路由处理程序_
 
 _在main.ts中，`app.use(<middleware-name>)`_
 
+### 守卫
+
+_`*.guard.ts`，在中间件之后、拦截器或管道之前执行_
+
+- 每个守卫需实现`CanActivate`接口和一个`CanActivate()`函数
+  - `CanActivate()`函数接受一个`ExecutionContext`，返回值为布尔值
+- 使用`@UseGuards`装饰器绑定守卫
+- 全局守卫
+  - 方案一：在main.ts中，``app.useGlobalGuards(new <custom-guard>())`
+  - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
+
 ### 异常处理
 
 #### HttpException 基类
@@ -170,6 +181,8 @@ _`*.module.ts` 每一个模块都是一个共享模块_
     - `{ provide: APP_FILTER, useClass: exceptionFilterClass }`
   - 注册管道
     - `{ provide: APP_PIPE, useClass: <custom-pipe> }`
+  - 注册守卫
+    - `{ provide: APP_GUARD, useClass: <custom-guard> }`
 - exports
   - 注册并导出本模块内部注册的提供者
   - 注册并导出本模块导入的其它模块
@@ -180,3 +193,7 @@ _`*.module.ts` 每一个模块都是一个共享模块_
 #### @UsePipes
 
 _绑定管道_
+
+#### @UseGuards
+
+_绑定守卫_

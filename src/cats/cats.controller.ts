@@ -11,6 +11,7 @@ import {
   Query,
   Redirect,
   UseFilters,
+  UseGuards,
   ValidationPipe,
   // UsePipes,
 } from '@nestjs/common';
@@ -18,10 +19,13 @@ import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
 // import { ForbiddenException } from '../forbidden.exception';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
+import { RolesGuard } from 'src/roles/roles.guard';
+import { Roles } from 'src/roles/roles.decorator';
 // import { JoiValidationPipe } from './cats.pipe';
 // import { Cat } from 'src/cats/interfaces/cat.interface';
 
 @Controller('cats')
+@UseGuards(new RolesGuard())
 export class CatsController {
   constructor(private catsService: CatsService) {}
 
@@ -31,6 +35,7 @@ export class CatsController {
   // 2.自定义响应头
   @Header('Cache-Control', 'none')
   // @UsePipes(new JoiValidationPipe())
+  @Roles('admin') // 自定义装饰器
   async create(@Body(new ValidationPipe()) createCatDto: CreateCatDto) {
     console.log(createCatDto);
     this.catsService.create(createCatDto);
