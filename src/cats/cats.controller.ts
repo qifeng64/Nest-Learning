@@ -8,10 +8,13 @@ import {
   Post,
   Query,
   Redirect,
+  UseFilters,
 } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
-import { Cat } from 'src/cats/interfaces/cat.interface';
+import { ForbiddenException } from '../forbidden.exception';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
+// import { Cat } from 'src/cats/interfaces/cat.interface';
 
 @Controller('cats')
 export class CatsController {
@@ -28,8 +31,10 @@ export class CatsController {
   }
 
   @Get()
-  async findAll(): Promise<Cat[]> {
-    return this.catsService.findAll();
+  @UseFilters(new HttpExceptionFilter()) // 使用异常过滤器
+  async findAll() {
+    // throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    throw new ForbiddenException();
   }
 
   // 3.路由模式匹配，如 * 表示任意字符

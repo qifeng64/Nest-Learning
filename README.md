@@ -90,6 +90,26 @@ _指定中间件应用的路由处理程序_
 
 _在main.ts中，`app.use(<middleware-name>)`_
 
+### 异常处理
+
+#### HttpException 基类
+
+#### 自定义异常
+
+_基于`HttpException`基类进行扩展_
+
+#### 异常过滤器
+
+_`@UseFilters(new exceptionFilterClass())` 绑定过滤器_
+
+- 可接收过滤器类或实例，推荐使用类，由nest自动实例化并注入，可重复使用同一实例，减少内存使用
+- 过滤器级别
+  - 方法范围，仅用于单个路由处理程序（控制器中的单个方法）
+  - 控制器范围
+  - 全局范围
+    - 方案一：在main.ts中，`app.useGlobalFilters(new exceptionFilterClass())`
+    - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
+
 ### 模块
 
 _`*.module.ts` 每一个模块都是一个共享模块_
@@ -109,7 +129,9 @@ _`*.module.ts` 每一个模块都是一个共享模块_
   - 注册本模块全局的控制器
 - providers
   - 注册本模块全局的提供者
-  - 注册后相当于已在该模块内全局实例化
+    - 注册后相当于已在该模块内全局实例化
+  - 注册过滤器
+  - `{ provide: APP_FILTER, useClass: exceptionFilterClass}`
 - exports
   - 注册并导出本模块内部注册的提供者
   - 注册并导出本模块导入的其它模块
