@@ -11,6 +11,7 @@ import {
   Query,
   Redirect,
   UseFilters,
+  UseInterceptors,
   // UseGuards,
   ValidationPipe,
   // UsePipes,
@@ -21,11 +22,14 @@ import { CatsService } from './cats.service';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 // import { RolesGuard } from 'src/roles/roles.guard';
 import { Roles } from 'src/roles/roles.decorator';
+import { LoggingInterceptor } from 'src/logging/logging.interceptor';
+import { ErrorsInterceptor } from 'src/errors/errors.interceptor';
 // import { JoiValidationPipe } from './cats.pipe';
 // import { Cat } from 'src/cats/interfaces/cat.interface';
 
 @Controller('cats')
 // @UseGuards(new RolesGuard())
+@UseInterceptors(LoggingInterceptor, ErrorsInterceptor)
 export class CatsController {
   constructor(private catsService: CatsService) {}
 

@@ -98,28 +98,26 @@ _`*.guard.ts`，在中间件之后、拦截器或管道之前执行_
   - `CanActivate()`函数接受一个`ExecutionContext`，返回值为布尔值
 - 使用`@UseGuards`装饰器绑定守卫
 - 全局守卫
-  - 方案一：在main.ts中，``app.useGlobalGuards(new <custom-guard>())`
+  - 方案一：在main.ts中，`app.useGlobalGuards(new <custom-guard>())`
   - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
 
-### 异常处理
+### 拦截器
 
-#### HttpException 基类
+_拦截器类需实现`NestInterceptor`接口，存在`intercept`方法_
 
-#### 自定义异常
+- 使用`@UseInterceptors`装饰器绑定拦截器，直接传入拦截器类
+- - 全局守卫
+  - 方案一：在main.ts中，`app.useGlobalInterceptors(new <custom-interceptor>())`
+  - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
 
-_基于`HttpException`基类进行扩展_
+#### intercept
 
-#### 异常过滤器
+_两个参数：`ExecutionContext`和`CallHandler`，需手动调用`handle()`_
 
-_`@UseFilters(new exceptionFilterClass())` 绑定过滤器_
-
-- 可接收过滤器类或实例，推荐使用类，由nest自动实例化并注入，可重复使用同一实例，减少内存使用
-- 过滤器级别
-  - 方法范围，仅用于单个路由处理程序（控制器中的单个方法）
-  - 控制器范围
-  - 全局范围
-    - 方案一：在main.ts中，`app.useGlobalFilters(new exceptionFilterClass())`
-    - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
+- `next.handle()`
+  - 可对响应数据处理
+  - 可使用`catchError(err)`操作符覆盖抛出的异常
+    - err为原异常信息
 
 ### Pipes
 
@@ -157,6 +155,26 @@ _内置验证管道十分强大，直接使用即可；需对传入数据进行�
   - 方案一：在main.ts中，``app.useGlobalPipes(new <custom-pipe>())`
   - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
 
+### 异常处理
+
+#### HttpException 基类
+
+#### 自定义异常
+
+_基于`HttpException`基类进行扩展_
+
+#### 异常过滤器
+
+_`@UseFilters(new exceptionFilterClass())` 绑定过滤器_
+
+- 可接收过滤器类或实例，推荐使用类，由nest自动实例化并注入，可重复使用同一实例，减少内存使用
+- 过滤器级别
+  - 方法范围，仅用于单个路由处理程序（控制器中的单个方法）
+  - 控制器范围
+  - 全局范围
+    - 方案一：在main.ts中，`app.useGlobalFilters(new exceptionFilterClass())`
+    - 方案二：在app.module.ts中，传入`@Module`装饰器的providers
+
 ### 模块
 
 _`*.module.ts` 每一个模块都是一个共享模块_
@@ -183,6 +201,8 @@ _`*.module.ts` 每一个模块都是一个共享模块_
     - `{ provide: APP_PIPE, useClass: <custom-pipe> }`
   - 注册守卫
     - `{ provide: APP_GUARD, useClass: <custom-guard> }`
+  - 注册拦截器
+    - `{ provide: APP_INTERCEPTOR, useClass: <custom-interceptor> }`
 - exports
   - 注册并导出本模块内部注册的提供者
   - 注册并导出本模块导入的其它模块
@@ -197,3 +217,7 @@ _绑定管道_
 #### @UseGuards
 
 _绑定守卫_
+
+#### @Injectable
+
+_可注解提供者、拦截器_
