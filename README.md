@@ -41,14 +41,6 @@ $ pnpm run test:cov
 
 ## Learning Notes
 
-### 装饰器
-
-_`@xxx aaa`，xxx为函数，意为将aaa作为参数传入xxx_
-
-_`@xxx(bbb) aaa`，此时xxx为高阶函数，意为将bbb作为参数传入xxx，且xxx会返回一个函数_
-
-### 文件系统
-
 ### 控制器
 
 _`*.controller.ts` 类似vue路由_
@@ -56,6 +48,27 @@ _`*.controller.ts` 类似vue路由_
 ### 提供者
 
 _`*.service.ts` 数据处理逻辑_
+
+#### 自定义提供者
+
+- 注册
+  - 提供者在 `@Module` 装饰器的 `providers` 参数中注册提供者时
+    - `provide` 参数设置token，`Nest IoC` 根据token查找依赖对应的提供
+    - `useClass/useValue` 参数，将token与提供者关联
+    - `useFactory` 参数，可创建工厂提供者、异步提供者
+- 使用
+  - `@Inject(<token-name>)` 使用提供者
+
+#### 作用域
+
+- 方案一：使用 `@Injectable` 注入作用域
+  - `@Injectable({ scope: Scope.scopeRange})`
+  - scopeRange 值
+    - DEFAULT，单例范围
+    - REQUEST，请求处理完成后，为每个传入的请求和垃圾收集专门创建新实例
+    - TRANSIENT，临时提供者，每次请求都会创建新的实例
+- 方案二：在 `@Module` 中注册提供者时，使用 `scope` 参数设置作用域
+- 方案三：为单个控制器中提供者设置范围，在 `@Controller` 中使用 `scope` 参数设置作用域
 
 ### 中间件
 
@@ -184,9 +197,17 @@ _`*.module.ts` 每一个模块都是一个共享模块_
 1. 在`app.module.ts`中`@Module()`装饰器的`imports`参数中注册
 2. 定义模块时使用`@Global()`装饰器
 
+#### [动态模块](https://docs.nestjs.cn/10/fundamentals?id=%e6%a8%a1%e5%9d%97%e9%85%8d%e7%bd%ae)
+
 ### 装饰器
 
-#### @Module
+_`@xxx aaa`，xxx为函数，意为将aaa作为参数传入xxx_
+
+_`@xxx(bbb) aaa`，此时xxx为高阶函数，意为将bbb作为参数传入xxx，且xxx会返回一个函数_
+
+#### 内置装饰器
+
+##### @Module
 
 可传入
 
@@ -195,6 +216,7 @@ _`*.module.ts` 每一个模块都是一个共享模块_
 - providers
   - 注册本模块全局的提供者
     - 注册后相当于已在该模块内全局实例化
+    - `{ provide: <token-name>, useClass: <custom-provides> }`
   - 注册过滤器
     - `{ provide: APP_FILTER, useClass: exceptionFilterClass }`
   - 注册管道
@@ -210,14 +232,95 @@ _`*.module.ts` 每一个模块都是一个共享模块_
   - 导入其它模块
   - 可直接使用全局模块导出的提供者，不需要imports该全局模块
 
-#### @UsePipes
+##### @UsePipes
 
 _绑定管道_
 
-#### @UseGuards
+##### @UseGuards
 
 _绑定守卫_
 
-#### @Injectable
+##### @Injectable
 
-_可注解提供者、拦截器_
+_可注解标记提供者、拦截器_
+
+- 标记提供者
+  - 在 `Nest IoC` 容器中注册提供者（`@Module`）
+  - 当 `Nest IoC` 容器实例化控制者时，会先查找所有依赖，找到提供者类时自动实例化
+
+#### 自定义装饰器
+
+_接受两个参数，data和ctx_
+
+- data
+  - 使用`@decorator(xxx)`注解时，传入的xxx会被data接受
+- ctx
+  - 执行上下文
+
+#### 装饰器聚合
+
+_applyDecorators_
+
+### 循环依赖
+
+_前向引用 `forwardRef()`_
+
+#### 提供者循环依赖
+
+_循环依赖双方都使用 `@Inject()` 和前向引用 `forwardRef()` 声明成员_
+
+```typescript
+@Injectable()
+export class CatsService {
+  constructor(
+    @Inject(forwardRef(() => CommonService))
+    private readonly commonService: CommonService,
+  ) {}
+}
+```
+
+#### 模块循环依赖
+
+_循环依赖双方都使用前向引用 `forwardRef()`_
+
+```typescript
+@Module({
+  imports: [forwardRef(() => CatsModule)],
+})
+export class CommonModule {}
+```
+
+### 应用上下文
+
+_`context: ExecutionContext`_
+
+#### HttpArgumentsHost
+
+```typescript
+const ctx = context.switchToHttp();
+const request = ctx.getRequest();
+const response = ctx.getResponse();
+```
+
+#### WsArgumentsHost
+
+```typescript
+const ctx = context.switchToWs();
+const data = ctx.getData();
+const client = ctx.getClient();
+```
+
+#### RpcArgumentsHost
+
+```typescript
+const ctx = context.switchToRpc();
+const data = ctx.getData();
+const context = ctx.getContext();
+```
+
+#### getHandler()和getClass()
+
+- `ctx.getHandler()` 返回关联控制者中定义的 `create()` 方法
+- `ctx.和getClass()` 返回关联控制者类的应用（非实例）
+
+### [生命周期事件](https://docs.nestjs.cn/10/fundamentals?id=%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f%e4%ba%8b%e4%bb%b6-1)
