@@ -1,3 +1,9 @@
+## Start
+
+```bash
+$ nest new <project-name>
+```
+
 ## Installation
 
 ```bash
@@ -324,3 +330,11 @@ const context = ctx.getContext();
 - `ctx.和getClass()` 返回关联控制者类的应用（非实例）
 
 ### [生命周期事件](https://docs.nestjs.cn/10/fundamentals?id=%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f%e4%ba%8b%e4%bb%b6-1)
+
+### websocket
+
+```bash
+pnpm add @nestjs/platform-socket.io @nestjs/websockets socket.io
+```
+
+![postman](./public/img/image.png)

@@ -8,9 +8,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CatsModule } from './cats/cats.module';
 import { LoggerMiddleware } from './logger/logger.middleware';
+import { WsModule } from './ws/ws.module';
 
 @Module({
-  imports: [CatsModule],
+  imports: [CatsModule, WsModule],
   controllers: [AppController],
   providers: [AppService],
 })
